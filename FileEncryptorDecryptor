@@ -1,0 +1,101 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox, simpledialog
+from tkinter import ttk
+from cryptography.fernet import Fernet
+import time
+import threading
+import os
+
+class FileEncryptor:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("File Encryptor")
+        self.file_path = ""
+
+        self.master.geometry("400x300")
+
+        self.master.resizable(False, False)
+
+
+        self.label = tk.Label(self.master, text="Choose a file to encrypt/decrypt:")
+        self.label.pack(pady=10)
+
+        self.choose_button = tk.Button(self.master, text="Choose File", command=self.choose_file)
+        self.choose_button.pack(pady=5)
+
+        self.encrypt_button = tk.Button(self.master, text="Encrypt", command=self.encrypt_file)
+        self.encrypt_button.pack(pady=5)
+
+        self.decrypt_button = tk.Button(self.master, text="Decrypt", command=self.decrypt_file)
+        self.decrypt_button.pack(pady=5)
+
+        self.exit_button = tk.Button(self.master, text="Exit", command=self.exit_program)
+        self.exit_button.pack(pady=5)
+
+        self.help_button = tk.Button(self.master, text="Help", command=self.display_help)
+        self.help_button.pack(pady=5)
+
+    def choose_file(self):
+        self.file_path = filedialog.askopenfilename()
+        if self.file_path:
+            self.label.config(text=f"Selected file: {self.file_path}")
+        else:
+            self.label.config(text="No file selected.")
+
+    def encrypt_file(self):
+        if not self.file_path:
+            messagebox.showwarning("Warning", "Please choose a file first.")
+            return
+
+        # Check if the file is already encrypted
+        if self.file_path.endswith('.encrypted'):
+            messagebox.showwarning("Warning", "The selected file is already encrypted.")
+            return
+
+
+    def decrypt_file(self):
+        if not self.file_path:
+            messagebox.showwarning("Warning", "Please choose a file first.")
+            return
+
+        if not self.file_path.endswith('.encrypted'):
+            messagebox.showwarning("Warning", "The selected file is not encrypted.")
+            return
+
+
+    def exit_program(self):
+        if messagebox.askyesno("Exit", "Are you sure you want to exit?"):
+            self.progress_bar = ttk.Progressbar(self.master, orient='horizontal', length=200, mode='determinate')
+            self.progress_bar.pack(pady=10)
+            self.close_window()
+
+    def close_window(self):
+        def run_progress():
+            for i in range(101):
+                time.sleep(0.05)
+                self.progress_bar['value'] = i
+                self.master.update_idletasks()
+            self.master.destroy()
+
+        threading.Thread(target=run_progress).start()
+
+    def display_help(self):
+        help_window = tk.Toplevel(self.master)
+        help_window.title("Help")
+
+        help_label = tk.Label(help_window, text="Enter your query below:")
+        help_label.pack(pady=5)
+
+        query_entry = tk.Entry(help_window, width=30)
+        query_entry.pack(pady=5)
+
+        send_button = tk.Button(help_window, text="Send", command=self.send_query)
+        send_button.pack(pady=5)
+
+    def send_query(self):
+        messagebox.showinfo("Confirmation", "Your message has been sent.")
+
+root = tk.Tk()
+app = FileEncryptor(root)
+
+root.mainloop()
